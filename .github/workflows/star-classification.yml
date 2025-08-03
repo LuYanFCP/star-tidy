@@ -1,0 +1,133 @@
+name: GitHub Star Auto Classification
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Classification mode'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+        - auto
+        - existing_lists
+      dry_run:
+        description: 'Run in dry-run mode (no actual changes)'
+        required: false
+        default: false
+        type: boolean
+      verbose:
+        description: 'Enable verbose logging'
+        required: false
+        default: false
+        type: boolean
+      auto_complete_summaries:
+        description: 'Auto-complete missing list descriptions'
+        required: false
+        default: true
+        type: boolean
+      enhance_existing_summaries:
+        description: 'Enhance existing list descriptions'
+        required: false
+        default: true
+        type: boolean
+
+  # 定时触发 - 每周日凌晨2点执行
+  schedule:
+    - cron: '0 2 * * 0'
+
+  # 当新增star时触发（可选）
+  # watch:
+  #   types: [started]
+
+jobs:
+  classify-stars:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+
+    - name: Set up Python
+      run: uv python install 3.12
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Set up environment variables
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+        AI_MODEL: ${{ secrets.AI_MODEL }}
+      run: |
+        echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
+        echo "OPENAI_API_KEY=${OPENAI_API_KEY}" >> $GITHUB_ENV
+        echo "OPENAI_API_BASE=${OPENAI_API_BASE:-https://api.openai.com/v1}" >> $GITHUB_ENV
+        echo "AI_MODEL=${AI_MODEL:-gpt-4o-mini}" >> $GITHUB_ENV
+        
+        # Set classification mode and summary options
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "STAR_TIDY_MODE=${{ github.event.inputs.mode }}" >> $GITHUB_ENV
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "DRY_RUN=true" >> $GITHUB_ENV
+          fi
+          echo "AUTO_COMPLETE_SUMMARIES=${{ github.event.inputs.auto_complete_summaries }}" >> $GITHUB_ENV
+          echo "ENHANCE_EXISTING_SUMMARIES=${{ github.event.inputs.enhance_existing_summaries }}" >> $GITHUB_ENV
+        else
+          # Default to auto mode for scheduled tasks
+          echo "STAR_TIDY_MODE=auto" >> $GITHUB_ENV
+          echo "AUTO_COMPLETE_SUMMARIES=true" >> $GITHUB_ENV
+          echo "ENHANCE_EXISTING_SUMMARIES=true" >> $GITHUB_ENV
+        fi
+
+    - name: Run star classification
+      run: |
+        if [ "${{ github.event.inputs.verbose }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ]; then
+          uv run star-tidy --verbose star --mode ${{ env.STAR_TIDY_MODE || 'auto' }}
+        else
+          uv run star-tidy star --mode ${{ env.STAR_TIDY_MODE || 'auto' }}
+        fi
+
+    - name: Upload logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: star-tidy-logs
+        path: star-tidy.log
+        retention-days: 30
+
+    - name: Notify on failure
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const title = 'Star Classification Failed';
+          const body = `
+          Star classification workflow failed.
+          
+          **Run Details:**
+          - Workflow: ${{ github.workflow }}
+          - Run ID: ${{ github.run_id }}
+          - Trigger: ${{ github.event_name }}
+          - Commit: ${{ github.sha }}
+          
+          Check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
+          `;
+          
+          // 创建issue报告错误（可选）
+          // await github.rest.issues.create({
+          //   owner: context.repo.owner,
+          //   repo: context.repo.repo,
+          //   title: title,
+          //   body: body,
+          //   labels: ['bug', 'github-actions']
+          // });
+          
+          console.log('Star classification failed. Check logs for details.');

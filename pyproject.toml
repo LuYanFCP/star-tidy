@@ -1,0 +1,47 @@
+[project]
+name = "star-tidy"
+version = "0.1.0"
+description = "AI-powered GitHub star auto-classification tool"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pocketflow>=0.0.3",
+    "openai>=1.0.0",
+    "requests>=2.25.0",
+    "pyyaml>=6.0",
+    "click>=8.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "ruff>=0.0.100",
+]
+
+[project.scripts]
+star-tidy = "main:cli"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+exclude = [
+  "*.log",
+  "*.pyc",
+  "__pycache__",
+  ".git",
+  ".github",
+  "docs",
+  "tests",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88

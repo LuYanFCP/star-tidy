@@ -1,0 +1,41 @@
+# GitHub Star Auto Classification Configuration
+# Copy this file to config.yaml and customize as needed
+
+# GitHub Settings (Required)
+# github_token: "ghp_xxxxxxxxxxxxxxxxxxxx"  # GitHub Personal Access Token
+
+# OpenAI Settings (Required)  
+# openai_api_key: "sk-xxxxxxxxxxxxxxxxxxxx"   # OpenAI API Key
+# openai_api_base: "https://api.openai.com/v1"  # API Base URL (for compatible services)
+# ai_model: "gpt-4o-mini"  # AI Model to use
+# max_tokens: 1000         # Maximum tokens to generate (optional)
+# temperature: 0.7         # Sampling temperature 0-2 (optional)
+
+# Run Mode
+mode: "auto"  # "auto" or "existing_lists"
+
+# Excluded repositories (optional)
+exclude_repos:
+  # - "user/repo-name"
+  # - "org/another-repo"
+
+# Custom categorization rules (optional, only effective in auto mode)
+custom_categories:
+  # "Custom Category": 
+  #   description: "Description for this category"
+  #   keywords: ["keyword1", "keyword2"]
+  #   languages: ["JavaScript", "Python"]
+
+# Summary Options
+summary_options:
+  auto_complete: true      # Auto-complete missing list descriptions
+  enhance_existing: true   # Enhance existing list descriptions
+  use_ai_summary: true     # Use AI to generate summaries
+  include_stats: true      # Include repository statistics
+
+# System Settings
+max_repos_per_request: 100  # Maximum repositories per request
+dry_run: false              # Whether to run in test mode (no actual changes to star lists)
+
+# Logging Settings
+log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
