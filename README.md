@@ -2,18 +2,66 @@
 
 🌟 AI-powered tool to automatically classify GitHub starred repositories into different star lists, supporting both automatic updates and existing list modes.
 
+## System Overview
+
+This project is built on [Pocket Flow](https://github.com/The-Pocket/PocketFlow) framework using Agentic Coding design patterns:
+
+```mermaid
+flowchart TD
+    A[User/GitHub Actions] --> B[main.py]
+    B --> C[Star Classification Flow]
+    
+    subgraph Flow["Star Classification Workflow"]
+        D[Initialize<br/>Config & Validation] --> E[Fetch Starred Repos<br/>Get Repository Data]
+        E --> F[Mode Decision<br/>Auto vs Existing Lists]
+        F --> G[AI Analysis<br/>Batch Classification]
+        G --> H[Manage Star Lists<br/>Create & Update Lists]
+    end
+    
+    C --> D
+    
+    subgraph Utils["Core Components"]
+        I[Configuration<br/>Settings & Options]
+        J[GitHub Client<br/>API Operations]
+        K[AI Analyzer<br/>Repository Classification]
+        L[List Manager<br/>Smart Summary Generation]
+        M[LLM Interface<br/>OpenAI Compatible]
+    end
+    
+    D --> I
+    E --> J
+    F --> J
+    G --> K
+    H --> L
+    K --> M
+    L --> M
+    
+    subgraph External["External APIs"]
+        N[GitHub API]
+        O[OpenAI Compatible API]
+    end
+    
+    J --> N
+    M --> O
+    
+    subgraph Results["Outputs"]
+        P[Organized Star Lists]
+        Q[Classification Report]
+        R[System Logs]
+    end
+    
+    H --> P
+    H --> Q
+    B --> R
+```
+
 ## Features
 
-- 🤖 **AI-Driven Analysis**: Uses OpenAI compatible interfaces to analyze repository tech stacks, purposes, and topics
-- 📋 **Dual Operation Modes**:
-  - **Auto Mode**: AI automatically creates and updates star lists
-  - **Existing Lists Mode**: Classifies based on user's existing star lists
-- ⚡ **GitHub Actions Support**: Supports scheduled execution and manual triggers
-- 🔧 **Flexible Configuration**: Supports custom classification standards, exclusion rules, etc.
-- 🔍 **Dry Run Mode**: Test classification effects without actually modifying star lists
-- 📊 **Detailed Logging**: Complete classification process and result reports
-- ✨ **Smart Summary Completion**: AI-powered auto-completion and enhancement of list descriptions
-- 📦 **Modern Package Management**: Uses UV for fast and reliable dependency management
+- 🤖 **AI-Driven Classification**: Automatic repository analysis and categorization
+- 📋 **Dual Modes**: Auto creation or existing list management
+- ✨ **Smart Summaries**: AI-powered list descriptions and enhancements
+- ⚡ **GitHub Actions**: Automated scheduling and manual triggers
+- 🔧 **Flexible Config**: Multiple LLM providers, custom settings
 
 ## Quick Start
 
@@ -221,114 +269,29 @@ Classifies based on user's existing star lists:
 - Enhances existing descriptions with updated information
 - Suitable for maintaining existing classification systems
 
-## Project Architecture
-
-This project is built on [Pocket Flow](https://github.com/The-Pocket/PocketFlow) framework using Agentic Coding design patterns:
-
-### System Overview
-
-```mermaid
-flowchart TD
-    A[User/GitHub Actions] --> B[main.py]
-    B --> C[Star Classification Flow]
-    
-    subgraph Flow["Star Classification Workflow"]
-        D[InitializeNode<br/>Config & API Validation] --> E[FetchStarredReposNode<br/>Get Starred Repositories]
-        E --> F[ModeDecisionNode<br/>Choose Mode & Get Existing Lists]
-        F --> G[AnalyzeRepositoriesNode<br/>AI Batch Analysis<br/>BatchNode]
-        G --> H[ManageStarListsNode<br/>Smart List Management<br/>+ Summary Completion]
-    end
-    
-    C --> D
-    
-    subgraph Utils["Utility Functions"]
-        I[config.py<br/>Configuration Management<br/>+ Summary Options]
-        J[github_client.py<br/>GitHub API Client<br/>+ List Management]
-        K[repo_analyzer.py<br/>AI Repository Analyzer<br/>+ Classification Logic]
-        L[star_list_manager.py<br/>Smart Star List Manager<br/>+ AI Summary Generation]
-        M[call_llm.py<br/>LLM API Calls<br/>OpenAI Compatible]
-    end
-    
-    D --> I
-    E --> J
-    F --> J
-    G --> K
-    H --> L
-    K --> M
-    L --> M
-    
-    subgraph External["External APIs"]
-        N[GitHub API<br/>• Starred Repos<br/>• Star Lists<br/>• Repository Info]
-        O[OpenAI Compatible API<br/>• Repository Analysis<br/>• Smart Summaries<br/>• Description Enhancement]
-    end
-    
-    J --> N
-    M --> O
-    
-    subgraph Results["Output Results"]
-        P[Organized Star Lists<br/>• Auto-created Categories<br/>• Smart AI Descriptions<br/>• Enhanced Summaries]
-        Q[Classification Report<br/>• Category Statistics<br/>• Processing Results<br/>• Summary Enhancements]
-        R[System Logs<br/>• Execution Details<br/>• Error Handling<br/>• Performance Metrics]
-    end
-    
-    H --> P
-    H --> Q
-    B --> R
-    
-    subgraph Config["Configuration Sources"]
-        S[Environment Variables<br/>• API Keys<br/>• Basic Settings<br/>• Summary Options]
-        T[Config Files<br/>• YAML Configuration<br/>• Custom Categories<br/>• Advanced Options]
-        U[Command Line Args<br/>• Runtime Options<br/>• Summary Control<br/>• Debug Flags]
-    end
-    
-    S --> I
-    T --> I
-    U --> I
-    
-    subgraph Features["Key Features"]
-        V[🤖 AI-Powered Analysis<br/>• Tech Stack Detection<br/>• Purpose Classification<br/>• Smart Categorization]
-        W[📋 Dual Modes<br/>• Auto Mode<br/>• Existing Lists Mode<br/>• Flexible Operation]
-        X[✨ Smart Summaries<br/>• Auto-completion<br/>• Enhancement<br/>• Statistics Integration]
-        Y[🔍 Dry Run Support<br/>• Safe Testing<br/>• Preview Results<br/>• No Modifications]
-    end
-    
-    style D fill:#e1f5fe
-    style G fill:#fff3e0
-    style H fill:#e8f5e8
-    style L fill:#f3e5f5
-    style M fill:#fce4ec
-    style N fill:#f3e5f5
-    style O fill:#f3e5f5
-    style P fill:#e8f5e8
-    style X fill:#fff3e0
-```
-
-### Directory Structure
+## Directory Structure
 
 ```
 star-tidy/
 ├── main.py              # Main program entry
-├── flow.py              # Flow definitions
+├── flow.py              # Flow definitions  
 ├── nodes.py             # Core node implementations
 ├── utils/               # Utility functions
 │   ├── call_llm.py      # LLM API calls
 │   ├── github_client.py # GitHub API client
 │   ├── repo_analyzer.py # Repository analyzer
-│   ├── star_list_manager.py # Star List manager with smart summaries
+│   ├── star_list_manager.py # Smart list manager
 │   └── config.py        # Configuration management
-├── .github/workflows/   # GitHub Actions configuration
-├── pyproject.toml       # UV project configuration
-└── docs/               # Design documentation
+├── .github/workflows/   # GitHub Actions
+└── pyproject.toml       # UV project configuration
 ```
 
 ## Development Guide
 
-- View [Design Documentation](docs/design.md) to understand system architecture
-- Use [Agentic Coding Guide](https://the-pocket.github.io/PocketFlow/guide.html) for development
-- Install development dependencies: `uv sync --extra dev`
+- Built on [Pocket Flow](https://github.com/The-Pocket/PocketFlow) framework
+- Install dev dependencies: `uv sync --extra dev`
 - Run tests: `uv run pytest`
 - Format code: `uv run black .`
-- Lint code: `uv run ruff check`
 
 ## License
 
